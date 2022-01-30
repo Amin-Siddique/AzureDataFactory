@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "covid-reporting-df-amin"
+		},
+		"ls_parameterset_connectionString": {
+			"value": ""
+		},
+		"ls_tgt_datalake_accountKey": {
+			"value": ""
+		},
+		"ls_src_https_data_properties_typeProperties_url": {
+			"value": "https://github.com/Amin-Siddique/AzureDataFactory/blob/main/Dataset/"
+		},
+		"ls_tgt_datalake_properties_typeProperties_url": {
+			"value": "https://covidreportingdlake19.dfs.core.windows.net"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

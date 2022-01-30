@@ -1,0 +1,29 @@
+{
+	"name": "ds_copy_paramset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_parameterset",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "parameter_list.json",
+				"container": "parameters"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"sourceRelativeURL": {
+					"type": "string"
+				},
+				"sinkFileName": {
+					"type": "string"
+				}
+			}
+		}
+	}
+}

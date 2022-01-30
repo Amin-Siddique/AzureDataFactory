@@ -1,0 +1,12 @@
+{
+	"name": "ls_src_https_data",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://github.com/Amin-Siddique/AzureDataFactory/blob/main/Dataset/",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}

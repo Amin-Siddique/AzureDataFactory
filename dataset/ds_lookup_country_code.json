@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "country_lookup.csv",
+
 				"fileSystem": "lookup"
 			},
 			"columnDelimiter": ",",

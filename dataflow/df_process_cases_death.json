@@ -1,0 +1,51 @@
+{
+	"name": "df_process_cases_death",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_dl_cases_deaths_src",
+						"type": "DatasetReference"
+					},
+					"name": "sourcecasesanddeathdata"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_lookup_country_code",
+						"type": "DatasetReference"
+					},
+					"name": "sourceLookupData"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_tgt_cases_death_processed",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "FilterOnlyEurope"
+				},
+				{
+					"name": "SelectCols1"
+				},
+				{
+					"name": "Pivot1"
+				},
+				{
+					"name": "Lookup1"
+				},
+				{
+					"name": "SelectTrimCols"
+				}
+			],
+			"script": "source(output(\n\t\tcountry as string,\n\t\tcountry_code as string,\n\t\tcontinent as string,\n\t\tpopulation as integer,\n\t\tindicator as string,\n\t\tdaily_count as integer,\n\t\tdate as date,\n\t\trate_14_day as string,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourcecasesanddeathdata\nsource(output(\n\t\tcountry as string,\n\t\tcountry_code_2_digit as string,\n\t\tcountry_code_3_digit as string,\n\t\tcontinent as string,\n\t\tpopulation as integer\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceLookupData\nsourcecasesanddeathdata filter(continent == 'Europe' && not(isNull(country_code))) ~> FilterOnlyEurope\nFilterOnlyEurope select(mapColumn(\n\t\tcountry,\n\t\tcountry_code,\n\t\tcontinent,\n\t\tpopulation,\n\t\tindicator,\n\t\tdaily_count,\n\t\treported_date = date,\n\t\trate_14_day,\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectCols1\nSelectCols1 pivot(groupBy(country,\n\t\tcountry_code,\n\t\tcontinent,\n\t\tpopulation,\n\t\tdaily_count,\n\t\trate_14_day,\n\t\tsource),\n\tpivotBy(indicator),\n\tcount = sum(daily_count),\n\tcolumnNaming: '$N$V',\n\tlateral: true) ~> Pivot1\nPivot1, sourceLookupData lookup(Pivot1@country == sourceLookupData@country,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> Lookup1\nLookup1 select(mapColumn(\n\t\tcountry = Pivot1@country,\n\t\tcountry_code,\n\t\tcountry_code_2_digit,\n\t\tcountry_code_3_digit,\n\t\tpopulation = Pivot1@population,\n\t\tdaily_count,\n\t\trate_14_day,\n\t\tsource\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectTrimCols\nSelectTrimCols sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\ttruncate: true,\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}

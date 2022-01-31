@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"folderPath": "ecdc",
+				"folderPath": "ecdc/weekly",
 				"fileSystem": "processed"
 			},
 			"columnDelimiter": ",",

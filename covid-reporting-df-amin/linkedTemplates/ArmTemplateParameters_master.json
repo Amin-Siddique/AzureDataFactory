@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "covid-reporting-df-amin"
 		},
+		"ls_covid_databricks_clustier_accessToken": {
+			"value": ""
+		},
 		"ls_parameterset_connectionString": {
 			"value": ""
 		},

@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "covid-reporting-df-amin"
 		},
+		"ls_covid_databricks_clustier_accessToken": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accessToken' of 'ls_covid_databricks_clustier'"
+		},
 		"ls_parameterset_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ls_parameterset'"
@@ -49,6 +53,9 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"ls_covid_databricks_clustier_accessToken": {
+						"value": "[parameters('ls_covid_databricks_clustier_accessToken')]"
 					},
 					"ls_parameterset_connectionString": {
 						"value": "[parameters('ls_parameterset_connectionString')]"

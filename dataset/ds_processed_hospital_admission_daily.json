@@ -1,5 +1,5 @@
 {
-	"name": "ds_lookup_country_code",
+	"name": "ds_processed_hospital_admission_daily",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_tgt_datalake",
@@ -10,8 +10,8 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-
-				"fileSystem": "lookup"
+				"folderPath": "ecdc/daily",
+				"fileSystem": "processed"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
@@ -24,6 +24,10 @@
 				"type": "String"
 			},
 			{
+				"name": "country_code",
+				"type": "String"
+			},
+			{
 				"name": "country_code_2_digit",
 				"type": "String"
 			},
@@ -32,11 +36,19 @@
 				"type": "String"
 			},
 			{
-				"name": "continent",
+				"name": "population",
 				"type": "String"
 			},
 			{
-				"name": "population",
+				"name": "daily_count",
+				"type": "String"
+			},
+			{
+				"name": "rate_14_day",
+				"type": "String"
+			},
+			{
+				"name": "source",
 				"type": "String"
 			}
 		]

@@ -14,6 +14,9 @@
 		"ls_tgt_datalake_accountKey": {
 			"value": ""
 		},
+		"ls_SqlServer_connectionString": {
+			"value": ""
+		},
 		"ls_src_https_data_properties_typeProperties_url": {
 			"value": "https://github.com/Amin-Siddique/AzureDataFactory/blob/main/Dataset/"
 		},

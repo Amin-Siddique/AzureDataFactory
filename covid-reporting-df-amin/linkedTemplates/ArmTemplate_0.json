@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_tgt_datalake'"
 		},
+		"ls_SqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'ls_SqlServer'"
+		},
 		"ls_src_https_data_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://github.com/Amin-Siddique/AzureDataFactory/blob/main/Dataset/"
@@ -97,6 +101,19 @@
 						"type": "SecureString",
 						"value": "[parameters('ls_tgt_datalake_accountKey')]"
 					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_SqlServer')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_SqlServer_connectionString')]"
 				}
 			},
 			"dependsOn": []
@@ -535,6 +552,100 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_emp_data_src')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_parameterset",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "Employees.csv",
+						"container": "scd2"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "empid",
+						"type": "String"
+					},
+					{
+						"name": "empname",
+						"type": "String"
+					},
+					{
+						"name": "gender",
+						"type": "String"
+					},
+					{
+						"name": "country",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_parameterset')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SqlServerTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_SqlServer",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "sk_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "empid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "empname",
+						"type": "nvarchar"
+					},
+					{
+						"name": "gender",
+						"type": "nvarchar"
+					},
+					{
+						"name": "country",
+						"type": "nvarchar"
+					},
+					{
+						"name": "isactive",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "tbl_employee"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_SqlServer')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/df_daily_weekly_hospital_report')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -688,6 +799,76 @@
 				"[concat(variables('factoryId'), '/datasets/ds_dl_cases_deaths_src')]",
 				"[concat(variables('factoryId'), '/datasets/ds_lookup_country_code')]",
 				"[concat(variables('factoryId'), '/datasets/ds_tgt_cases_death_processed')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_scd2')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_emp_data_src",
+								"type": "DatasetReference"
+							},
+							"name": "sourceDataFromBlob"
+						},
+						{
+							"dataset": {
+								"referenceName": "SqlServerTable",
+								"type": "DatasetReference"
+							},
+							"name": "sourceSQLserver"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "SqlServerTable",
+								"type": "DatasetReference"
+							},
+							"name": "sinkInsert"
+						},
+						{
+							"dataset": {
+								"referenceName": "SqlServerTable",
+								"type": "DatasetReference"
+							},
+							"name": "sinkUpdate"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumnFlag"
+						},
+						{
+							"name": "SelectChangeCol"
+						},
+						{
+							"name": "LookupFromTgt"
+						},
+						{
+							"name": "FilterExistingData"
+						},
+						{
+							"name": "SelectLoseSourceCols"
+						},
+						{
+							"name": "DerivedColumnSetFlag"
+						},
+						{
+							"name": "AlterRowMarkUpdate"
+						}
+					],
+					"script": "source(output(\n\t\tempid as integer,\n\t\tempname as string,\n\t\tgender as string,\n\t\tcountry as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> sourceDataFromBlob\nsource(output(\n\t\tsk_id as integer,\n\t\tempid as integer,\n\t\tempname as string,\n\t\tgender as string,\n\t\tcountry as string,\n\t\tisactive as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> sourceSQLserver\nsourceDataFromBlob derive(isactive = 1) ~> DerivedColumnFlag\nsourceSQLserver select(mapColumn(\n\t\tSQL_sk_id = sk_id,\n\t\tSQL_empid = empid,\n\t\tSQL_empname = empname,\n\t\tSQL_gender = gender,\n\t\tSQL_country = country,\n\t\tSQL_isactive = isactive\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectChangeCol\nsourceDataFromBlob, SelectChangeCol lookup(empid == SQL_empid,\n\tmultiple: false,\n\tpickup: 'any',\n\tbroadcast: 'auto')~> LookupFromTgt\nLookupFromTgt filter(not(isNull(SQL_empid))) ~> FilterExistingData\nFilterExistingData select(mapColumn(\n\t\tSQL_sk_id,\n\t\tSQL_empid,\n\t\tSQL_empname,\n\t\tSQL_gender,\n\t\tSQL_country,\n\t\tSQL_isactive\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectLoseSourceCols\nSelectLoseSourceCols derive(SQL_isactive = 0) ~> DerivedColumnSetFlag\nDerivedColumnSetFlag alterRow(updateIf(1==1)) ~> AlterRowMarkUpdate\nDerivedColumnFlag sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tsk_id as integer,\n\t\tempid as integer,\n\t\tempname as string,\n\t\tgender as string,\n\t\tcountry as string,\n\t\tisactive as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 2) ~> sinkInsert\nAlterRowMarkUpdate sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tsk_id as integer,\n\t\tempid as integer,\n\t\tempname as string,\n\t\tgender as string,\n\t\tcountry as string,\n\t\tisactive as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['sk_id'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\tmapColumn(\n\t\tsk_id = SQL_sk_id,\n\t\tempid = SQL_empid,\n\t\tempname = SQL_empname,\n\t\tgender = SQL_gender,\n\t\tcountry = SQL_country,\n\t\tisactive = SQL_isactive\n\t)) ~> sinkUpdate"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_emp_data_src')]",
+				"[concat(variables('factoryId'), '/datasets/SqlServerTable')]"
 			]
 		},
 		{

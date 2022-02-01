@@ -11,6 +11,9 @@ List of projects to cover:
 5. Using DataFlow to transform data into meaningful pipeline.
 6. Publishing ADF projects to github and maintaining code as a part of CI/CD devOps
 ```
+# Example: SCD2 Implementation with Data Flow
+
+![scd2] (https://github.com/Amin-Siddique/AzureDataFactory/blob/main/scd2DF.JPG)
 
 ## Reference:
 https://docs.microsoft.com/en-us/azure/data-factory/

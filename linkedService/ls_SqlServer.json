@@ -1,0 +1,12 @@
+{
+	"name": "ls_SqlServer",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=covidserver22.database.windows.net;initial catalog=coviddb;user id=adm",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEIxQjNGODNGLTA1MDktNDFFNi04RkU1LTM5RTQ4MkNDNjE4RF8xYThhZDllOS03ODdiLTQ3OGUtYjVmYy0wY2U0OWNiMjY5ZDkiDQp9"
+		}
+	}
+}
